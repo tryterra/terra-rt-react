@@ -1,4 +1,9 @@
 import { NativeModules, Platform } from 'react-native';
+import type { GetUserId, SuccessMessage } from './types';
+import type { Connections, DataTypes } from './enums';
+
+export * from './types';
+export * from './enums';
 
 const LINKING_ERROR =
   `The package 'react-native-terra-rt-react' doesn't seem to be linked. Make sure: \n\n` +
@@ -17,6 +22,51 @@ const TerraRtReact = NativeModules.TerraRtReact
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return TerraRtReact.multiply(a, b);
+export function initTerra(
+  devId: String,
+  referenceId?: String
+): Promise<SuccessMessage> {
+  return TerraRtReact.initTerra(devId, referenceId);
+}
+
+export function initConnection(token: String): Promise<SuccessMessage> {
+  return TerraRtReact.initConnection(token);
+}
+
+export function getUserId(): Promise<GetUserId> {
+  return TerraRtReact.getUserId();
+}
+
+export function startDeviceScan(
+  connections: Connections,
+  useCache: Boolean = false,
+  showWidgetIfCacheNotFound: Boolean = false
+): Promise<SuccessMessage> {
+  return TerraRtReact.startDeviceScan(
+    connections,
+    useCache,
+    showWidgetIfCacheNotFound
+  );
+}
+
+export function startRealtime(
+  connections: Connections,
+  dataTypes: Array<DataTypes>,
+  token: String | null = null
+): Promise<SuccessMessage> {
+  return TerraRtReact.startRealtime(connections, dataTypes, token);
+}
+
+export function stopRealtime(
+  connections: Connections
+): Promise<SuccessMessage> {
+  return TerraRtReact.stopRealtime(connections);
+}
+
+export function disconnect(connections: Connections): Promise<SuccessMessage> {
+  return TerraRtReact.disconnect(connections);
+}
+
+export function connectWithWatchOS(): Promise<SuccessMessage> {
+  return TerraRtReact.connectWithWatchOS();
 }
