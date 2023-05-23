@@ -253,6 +253,7 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
     this.terraRt.startRealtime(Objects.requireNonNull(this.parseConnection(connections)), dataTypes_, token, this::_updateHandler_, (success) -> {
       map.putBoolean("success", success);
       promise.resolve(map);
+      return Unit.INSTANCE;
     });
   }
 
