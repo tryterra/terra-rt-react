@@ -14,3 +14,9 @@ export type Update = {
   type: String | null;
   d: Array<number> | null;
 };
+
+export type Device = {
+  id: String | null;
+  name: String | null;
+  type: String;
+};

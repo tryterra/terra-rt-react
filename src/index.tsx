@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
-import type { GetUserId, SuccessMessage } from './types';
+import type { Device, GetUserId, SuccessMessage } from './types';
 import type { Connections, DataTypes } from './enums';
 
 export * from './types';
@@ -47,6 +47,20 @@ export function startDeviceScan(
     useCache,
     showWidgetIfCacheNotFound
   );
+}
+
+export function startDeviceScanWithCallback(
+  connections: Connections
+): Promise<SuccessMessage> {
+  if (Platform.OS === 'ios') {
+    return TerraRtReact.startBluetoothScan(connections);
+  } else {
+    return TerraRtReact.startDeviceScanWithCallback(connections);
+  }
+}
+
+export function connectDevice(device: Device): Promise<SuccessMessage> {
+  return TerraRtReact.connectDevice(device.id);
 }
 
 export function startRealtime(

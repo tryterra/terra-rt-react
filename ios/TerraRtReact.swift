@@ -5,6 +5,7 @@ import TerraRTiOS
 class TerraRtReact: NSObject {
     
     public static var terraRt: TerraRT? = nil
+    private static var scannedDevices: [String: Device] = [:]
         
     static func parseConnections(_ connections: String) -> Connections?{
         switch connections{
@@ -53,6 +54,12 @@ class TerraRtReact: NSObject {
     private func _updateCallback_(_ update: Update){
         let update_: [String: Any?] = ["ts": update.ts, "val": update.val, "type": update.type, "d": update.d]
         (UpdateHandler.emitter as! UpdateHandler).update(update_ as NSDictionary)
+    }
+
+    private func _deviceCallback_(_ device: Device){
+        let device_: [String: String?] = ["name": device.deviceName, "id": device.deviceUUID, "type": "BLE"]
+        TerraRtReact.scannedDevices[device.deviceUUID] = device
+        (DeviceHandler.emitter as! DeviceHandler).update(device_ as NSDictionary)
     }
     
     @objc(initTerra:withReferenceId:withResolver:withRejecter:)
@@ -130,6 +137,40 @@ class TerraRtReact: NSObject {
         terraRT.stopRealtime(type: connection)
         resolve(["success": true])
     }
+
+    @objc(startBluetoothScan:withResolver:withRejecter:)
+    func startBluetoothScan(connections: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        guard let terraRT = TerraRtReact.terraRt else{
+            resolve(["success": false, "error": "Please initialise a terra class by using `initTerra` first"])
+            return
+        }
+        
+        guard let connection = TerraRtReact.parseConnections(connections) else{
+            resolve(["success": false, "error": "Invalid Connection"])
+            return
+        }
+        TerraRtReact.scannedDevices = [:]
+        terraRT.startBluetoothScan(type: connection, deviceCallback: _deviceCallback_)
+        resolve(["success": true])
+    }
+    
+    @objc(connectDevice:withResolver:withRejecter:)
+    func connectDevice(device: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        guard let terraRT = TerraRtReact.terraRt else{
+            resolve(["success": false, "error": "Please initialise a terra class by using `initTerra` first"])
+            return
+        }
+        
+        if let device_ = TerraRtReact.scannedDevices[device]{
+            terraRT.connectDevice(device_){success in
+                resolve(["success": success])
+            }
+        }
+        else{
+            resolve(["success": false, "error": "Device not found"])
+        }
+    }
+
 
     @objc(disconnect:withResolver:withRejecter:)
     func disconnect(connections: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void{

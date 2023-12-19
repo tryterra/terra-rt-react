@@ -16,15 +16,19 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import {
   initTerra,
   initConnection,
-  startDeviceScan,
+  // startDeviceScan,
   startRealtime,
   stopRealtime,
   disconnect,
   getUserId,
-  connectWithWatchOS,
+  startDeviceScanWithCallback,
 } from 'react-native-terra-rt-react';
 import { config } from './config';
-import type { SuccessMessage, Update } from 'react-native-terra-rt-react';
+import type {
+  Device,
+  SuccessMessage,
+  Update,
+} from 'react-native-terra-rt-react';
 import { Connections, DataTypes } from 'react-native-terra-rt-react';
 import { BLWidget } from './iOSBleWidget';
 
@@ -42,6 +46,14 @@ export default function App() {
     eventEmitter.addListener('Update', (event: Update) => {
       setHr(event.val == null ? 0 : Math.round(event.val));
     });
+
+    const deviceEmitter = new NativeEventEmitter(NativeModules.DeviceHandler);
+    deviceEmitter.addListener('Device', async (event: Device) => {
+      console.log(event);
+      // Connect to device with
+      // connectDevice(event)
+    });
+
     initTerra(config.devId, 'tony_starks')
       .then((d: SuccessMessage) => {
         console.log(d);
@@ -70,22 +82,22 @@ export default function App() {
       });
   }, []);
 
-  const startScanning = () => {
-    if (Platform.OS === 'android') {
-      startDeviceScan(connection)
-        .then((d: SuccessMessage) => {
-          setConnected(d.success);
-        })
-        .catch((e: any) => {
-          console.log(e);
-        });
-    } else {
-      setDisplayWidget(true);
-      connectWithWatchOS()
-        .then((d) => console.log(d))
-        .catch((e) => console.log(e));
-    }
-  };
+  // const startScanning = () => {
+  //   if (Platform.OS === 'android') {
+  //     startDeviceScan(connection)
+  //       .then((d: SuccessMessage) => {
+  //         setConnected(d.success);
+  //       })
+  //       .catch((e: any) => {
+  //         console.log(e);
+  //       });
+  //   } else {
+  //     setDisplayWidget(true);
+  //     connectWithWatchOS()
+  //       .then((d) => console.log(d))
+  //       .catch((e) => console.log(e));
+  //   }
+  // };
 
   const startStreaming = async () => {
     try {
@@ -96,6 +108,7 @@ export default function App() {
       const token = await (await getStreamToken(userId.userId)).json();
       await startRealtime(connection, dataTypes, token.token);
       setStreaming(true);
+      console.log('Streaming');
     } catch (e: any) {
       console.log(e);
     }
@@ -142,6 +155,10 @@ export default function App() {
     console.log(displayWidget);
   };
 
+  const _startDeviceScan = (_: any) => {
+    startDeviceScanWithCallback(connection);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {Platform.OS === 'ios' && displayWidget && (
@@ -156,7 +173,7 @@ export default function App() {
       />
       <TouchableOpacity
         style={styles.scanButton}
-        onPress={startScanning}
+        onPress={_startDeviceScan}
         disabled={!initialised.valueOf() || connected.valueOf()}
       >
         <Text style={styles.scanText}>Start Scan</Text>

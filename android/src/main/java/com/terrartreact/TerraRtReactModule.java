@@ -18,6 +18,7 @@ import co.tryterra.terrartandroid.enums.DataTypes;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import co.tryterra.terrartandroid.*;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Objects;
 
 import co.tryterra.terrartandroid.models.Update;
@@ -26,6 +27,8 @@ import kotlin.Unit;
 @ReactModule(name = TerraRtReactModule.NAME)
 public class TerraRtReactModule extends ReactContextBaseJavaModule {
   public static final String NAME = "TerraRtReact";
+  private static HashMap<String, Device> devices = new HashMap<>();
+
   public final ReactApplicationContext reactContext;
   public TerraRtReactModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -144,6 +147,22 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
     }
 
     _connectionCallback.invoke(success);
+    return Unit.INSTANCE;
+  }
+
+  private Unit _deviceHandler_(Device device){
+    // Follows the structure:
+
+    // val deviceId: String,
+    // val deviceName: String?,
+
+    WritableMap map = new WritableNativeMap();
+
+    map.putString("id", device.getDeviceId());
+    map.putString("name", device.getDeviceName());
+    map.putString("type", "BLE");
+    sendEvent(this.reactContext, "Device", map);
+    devices.put(device.getDeviceId(), device);
     return Unit.INSTANCE;
   }
 
@@ -304,6 +323,50 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void connectWithWatchOS(Promise promise){
     promise.reject("Unimplemented function for Android");
+  }
+
+  @ReactMethod
+  public void startDeviceScanWithCallback(String connections, Promise promise){
+    WritableMap map = new WritableNativeMap();
+    if (this.parseConnection(connections) == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Invalid connections type");
+      promise.resolve(map);
+      return;
+    }
+
+    if (this.terraRt == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Please initialise a terra class by using `initTerra` first");
+      promise.resolve(map);
+      return;
+    }
+
+    this.terraRt.startDeviceScan(Objects.requireNonNull(this.parseConnection(connections)), this::_deviceHandler_);
+  }
+
+  @ReactMethod
+  public void connectDevice(String deviceId, Promise promise){
+    WritableMap map = new WritableNativeMap();
+
+    if (this.terraRt == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Please initialise a terra class by using `initTerra` first");
+      promise.resolve(map);
+      return;
+    }
+    if (!devices.containsKey(deviceId)){
+      map.putBoolean("success", false);
+      map.putString("error", "Device not found");
+      promise.resolve(map);
+      return;
+    }
+    
+    this.terraRt.connectDevice(devices.get(deviceId), (success) -> {
+      map.putBoolean("success", success);
+      promise.resolve(map);
+      return Unit.INSTANCE;
+    });
   }
 }
 
