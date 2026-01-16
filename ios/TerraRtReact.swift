@@ -61,6 +61,11 @@ class TerraRtReact: NSObject {
         TerraRtReact.scannedDevices[device.deviceUUID] = device
         (DeviceHandler.emitter as! DeviceHandler).update(device_ as NSDictionary)
     }
+
+    private func _connectionCallback_(_ update: Bool){
+        print(update)
+        (ConnectionHandler.emitter as! ConnectionHandler).update(update)
+    }
     
     @objc(initTerra:withReferenceId:withResolver:withRejecter:)
     func initTerra(devId: String, referenceId: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
@@ -116,10 +121,8 @@ class TerraRtReact: NSObject {
             }
         }
         
-        terraRT.startRealtime(type: connection, dataType: dataTypes_, token: token, callback: _updateCallback_){success in
-            resolve(["success": success])
-        }
-        
+        terraRT.startRealtime(type: connection, dataType: dataTypes_, token: token, callback: _updateCallback_, connectionCallback: _connectionCallback_)
+        resolve(["success": true])   
     }
 
     @objc(stopRealtime:withResolver:withRejecter:)

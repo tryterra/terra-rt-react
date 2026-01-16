@@ -16,12 +16,11 @@ import { NativeEventEmitter, NativeModules } from 'react-native';
 import {
   initTerra,
   initConnection,
-  // startDeviceScan,
+  startDeviceScan,
   startRealtime,
   stopRealtime,
   disconnect,
   getUserId,
-  startDeviceScanWithCallback,
 } from 'react-native-terra-rt-react';
 import { config } from './config';
 import type {
@@ -44,15 +43,24 @@ export default function App() {
   React.useEffect(() => {
     const eventEmitter = new NativeEventEmitter(NativeModules.UpdateHandler);
     eventEmitter.addListener('Update', (event: Update) => {
+      console.log(event);
       setHr(event.val == null ? 0 : Math.round(event.val));
     });
 
     const deviceEmitter = new NativeEventEmitter(NativeModules.DeviceHandler);
     deviceEmitter.addListener('Device', async (event: Device) => {
       console.log(event);
-      // Connect to device with
-      // connectDevice(event)
     });
+
+    const connectionHandler = new NativeEventEmitter(
+      NativeModules.ConnectionHandler
+    );
+    connectionHandler.addListener(
+      'ConnectionUpdate',
+      async (event: boolean) => {
+        console.log('connectionhandler', event);
+      }
+    );
 
     initTerra(config.devId, 'tony_starks')
       .then((d: SuccessMessage) => {
@@ -82,22 +90,21 @@ export default function App() {
       });
   }, []);
 
-  // const startScanning = () => {
-  //   if (Platform.OS === 'android') {
-  //     startDeviceScan(connection)
-  //       .then((d: SuccessMessage) => {
-  //         setConnected(d.success);
-  //       })
-  //       .catch((e: any) => {
-  //         console.log(e);
-  //       });
-  //   } else {
-  //     setDisplayWidget(true);
-  //     connectWithWatchOS()
-  //       .then((d) => console.log(d))
-  //       .catch((e) => console.log(e));
-  //   }
-  // };
+  const startScanning = () => {
+    if (Platform.OS === 'android') {
+      startDeviceScan(connection)
+        .then((d: SuccessMessage) => {
+          setConnected(d.success);
+          console.log(d.success, 'connection complete');
+        })
+        .catch((e: any) => {
+          console.log(e);
+        });
+    } else {
+      setDisplayWidget(true);
+      setConnected(true);
+    }
+  };
 
   const startStreaming = async () => {
     try {
@@ -155,9 +162,9 @@ export default function App() {
     console.log(displayWidget);
   };
 
-  const _startDeviceScan = (_: any) => {
-    startDeviceScanWithCallback(connection);
-  };
+  // const _startDeviceScan = (_: any) => {
+  //   startDeviceScanWithCallback(connection);
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,7 +180,7 @@ export default function App() {
       />
       <TouchableOpacity
         style={styles.scanButton}
-        onPress={_startDeviceScan}
+        onPress={startScanning}
         disabled={!initialised.valueOf() || connected.valueOf()}
       >
         <Text style={styles.scanText}>Start Scan</Text>

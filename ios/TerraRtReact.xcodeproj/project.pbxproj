@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9BA8AD3D2F1A6D15001BD030 /* ConnectionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8AD3C2F1A6D15001BD030 /* ConnectionHandler.swift */; };
 		9BB070252A178F0D00D105EF /* BLWidgetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BB070242A178A6F00D105EF /* BLWidgetManager.swift */; };
 		9BB0702B2A17AF6900D105EF /* UpdateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BB070282A17AACB00D105EF /* UpdateHandler.swift */; };
 		F4FF95D7245B92E800C19C63 /* TerraRtReact.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* TerraRtReact.swift */; };
@@ -26,6 +27,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libTerraRtReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTerraRtReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9BA8AD3C2F1A6D15001BD030 /* ConnectionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionHandler.swift; sourceTree = "<group>"; };
+		9BA8AD3F2F1A7189001BD030 /* ConnectionHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConnectionHandler.m; sourceTree = "<group>"; };
 		9BB070242A178A6F00D105EF /* BLWidgetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLWidgetManager.swift; sourceTree = "<group>"; };
 		9BB070262A179D7900D105EF /* BLWidgetManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BLWidgetManager.m; sourceTree = "<group>"; };
 		9BB070282A17AACB00D105EF /* UpdateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateHandler.swift; sourceTree = "<group>"; };
@@ -57,6 +60,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				9BA8AD3F2F1A7189001BD030 /* ConnectionHandler.m */,
+				9BA8AD3C2F1A6D15001BD030 /* ConnectionHandler.swift */,
 				9BB0702C2A17AFEA00D105EF /* UpdateHandler.m */,
 				9BB070282A17AACB00D105EF /* UpdateHandler.swift */,
 				9BB070262A179D7900D105EF /* BLWidgetManager.m */,
@@ -125,6 +130,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BA8AD3D2F1A6D15001BD030 /* ConnectionHandler.swift in Sources */,
 				9BB070252A178F0D00D105EF /* BLWidgetManager.swift in Sources */,
 				9BB0702B2A17AF6900D105EF /* UpdateHandler.swift in Sources */,
 				F4FF95D7245B92E800C19C63 /* TerraRtReact.swift in Sources */,
