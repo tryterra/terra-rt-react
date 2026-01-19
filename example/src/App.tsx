@@ -170,6 +170,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       {Platform.OS === 'ios' && displayWidget && (
         <BLWidget
+          // @ts-expect-error withCache is not in the component's type defs
           withCache={false}
           onSuccessfulConnection={_onSuccessfulConnection}
         />

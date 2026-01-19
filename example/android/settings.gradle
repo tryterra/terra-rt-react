@@ -1,4 +1,22 @@
-rootProject.name = 'TerraRtReactExample'
-apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
-include ':app'
-includeBuild('../node_modules/react-native-gradle-plugin')
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    google()
+    mavenCentral()
+  }
+  includeBuild("../node_modules/@react-native/gradle-plugin")
+}
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
+
+rootProject.name = "TerraRtReactExample"
+include(":app")
+
+include(":react-native-terra-rt-react")
+project(":react-native-terra-rt-react").projectDir = new File(rootProject.projectDir, "../../android")

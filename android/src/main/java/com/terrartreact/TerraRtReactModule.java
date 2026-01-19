@@ -38,7 +38,7 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
 
   private void sendEvent(ReactApplicationContext reactContext,
                       String eventName,
-                      WritableMap params) {
+                      Object params) {
     reactContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
         .emit(eventName, params);
@@ -49,9 +49,6 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
   public String getName() {
     return NAME;
   }
-
-  public static Callback _updateHandler = null;
-  public static Callback _connectionCallback = null;
 
   public TerraRT terraRt;
 
@@ -122,14 +119,11 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
     // var d: ArrayList<Double>? = null
 
     WritableMap map = new WritableNativeMap();
-    if (update.getD() == null){
-      map.putArray("d", null);
-    }
-    else{
+    if (update.getD() == null) {
+      map.putNull("d");
+    } else {
       WritableArray arr = new WritableNativeArray();
-      for (Double d_: update.getD()){
-        arr.pushDouble(d_);
-      }
+      for (Double d_ : update.getD()) arr.pushDouble(d_);
       map.putArray("d", arr);
     }
 
@@ -142,11 +136,7 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
   }
 
   private Unit _connectionCallback_(boolean success){
-    if (_connectionCallback == null){
-      return Unit.INSTANCE;
-    }
-
-    _connectionCallback.invoke(success);
+    sendEvent(this.reactContext, "ConnectionUpdate", success);
     return Unit.INSTANCE;
   }
 
@@ -269,11 +259,9 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
         dataTypes_.add(this.parseDataType((String) dType));
     }
 
-    this.terraRt.startRealtime(Objects.requireNonNull(this.parseConnection(connections)), dataTypes_, token, this::_updateHandler_, (success) -> {
-      map.putBoolean("success", success);
-      promise.resolve(map);
-      return Unit.INSTANCE;
-    });
+    this.terraRt.startRealtime(Objects.requireNonNull(this.parseConnection(connections)), dataTypes_, token, this::_updateHandler_, this::_connectionCallback_);
+    map.putBoolean("success", true);
+    promise.resolve(map);
   }
 
   @ReactMethod
