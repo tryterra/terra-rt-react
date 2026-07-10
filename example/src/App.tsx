@@ -21,14 +21,14 @@ import {
   stopRealtime,
   disconnect,
   getUserId,
-} from 'react-native-terra-rt-react';
+} from 'terra-rt';
 import { config } from './config';
 import type {
   Device,
   SuccessMessage,
   Update,
-} from 'react-native-terra-rt-react';
-import { Connections, DataTypes } from 'react-native-terra-rt-react';
+} from 'terra-rt';
+import { Connections, DataTypes } from 'terra-rt';
 import { BLWidget } from './iOSBleWidget';
 
 export default function App() {
