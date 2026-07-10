@@ -1,0 +1,48 @@
+name: Release package
+
+# Ported from tryterra/terra-react. Publishes react-native-terra-rt-react to
+# npm via npm "trusted publishing" (OIDC) — no stored token. Create a GitHub
+# Release to publish to `latest`, or workflow_dispatch (used by the
+# bump-terra-rt-react workflows in the native SDK repos).
+#
+# Requires a Trusted Publisher on npmjs.com: org tryterra, repo terra-rt-react,
+# workflow release_package.yml. The build runs explicitly (`yarn prepack`)
+# because publish uses --ignore-scripts and this package has no `prepare`
+# script.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch/tag to publish (blank = this ref)'
+        required: false
+        default: ''
+      dist-tag:
+        description: 'npm dist-tag'
+        required: false
+        default: 'latest'
+
+permissions:
+  id-token: write # mint the OIDC token npm exchanges for a short-lived publish credential
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org/'
+      - name: Ensure npm supports trusted publishing (>= 11.5.1)
+        run: npm install -g npm@latest
+      - name: Install
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn prepack
+      - name: Publish to npm (OIDC trusted publishing, no token)
+        run: npm publish --ignore-scripts --access public --tag ${{ github.event.inputs.dist-tag || 'latest' }}
