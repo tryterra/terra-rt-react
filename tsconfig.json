@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-terra-rt-react": ["./src/index"]
+      "terra-rt": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
