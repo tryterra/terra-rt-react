@@ -1,11 +1,11 @@
-# react-native-terra-rt-react
+# terra-rt
 
 React Native bridge for Terra Realtime mobile SDKs
 
 ## Installation
 
 ```sh
-npm install react-native-terra-rt-react
+npm install terra-rt
 ```
 
 ## Usage
