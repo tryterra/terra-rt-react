@@ -23,11 +23,7 @@ import {
   getUserId,
 } from 'terra-rt';
 import { config } from './config';
-import type {
-  Device,
-  SuccessMessage,
-  Update,
-} from 'terra-rt';
+import type { Device, SuccessMessage, Update } from 'terra-rt';
 import { Connections, DataTypes } from 'terra-rt';
 import { BLWidget } from './iOSBleWidget';
 
