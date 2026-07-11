@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,swift}"
   s.frameworks = ['HealthKit']
   s.dependency "React-Core"
-  s.dependency "TerraRTiOS", "=0.3.12"
+  s.dependency "TerraRTiOS", "=0.3.13"
 
 
   # Don't install the dependencies when we run `pod install` in the old architecture.
