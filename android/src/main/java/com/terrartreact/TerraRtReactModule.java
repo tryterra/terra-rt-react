@@ -13,6 +13,11 @@ import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.bridge.ReadableArray;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.PowerManager;
+import android.provider.Settings;
 import co.tryterra.terrartandroid.enums.Connections;
 import co.tryterra.terrartandroid.enums.DataTypes;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -350,11 +355,74 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
       return;
     }
     
+    // The SDK reuses this callback for later connection updates
+    // (e.g. disconnect) — a promise must resolve exactly once.
+    final java.util.concurrent.atomic.AtomicBoolean resolved =
+        new java.util.concurrent.atomic.AtomicBoolean(false);
     this.terraRt.connectDevice(devices.get(deviceId), (success) -> {
-      map.putBoolean("success", success);
-      promise.resolve(map);
+      if (resolved.compareAndSet(false, true)) {
+        map.putBoolean("success", success);
+        promise.resolve(map);
+      }
       return Unit.INSTANCE;
     });
+  }
+
+  /**
+   * Customizes the persistent notification and (re)starts the streaming
+   * foreground service. As of terra-rtandroid 0.4.12 the service lifecycle
+   * is managed by the SDK (startRealtime starts it, stopRealtime/disconnect
+   * stop it) — calling this is only needed to override the notification.
+   */
+  @ReactMethod
+  public void startForegroundService(String title, String text, Promise promise){
+    WritableMap map = new WritableNativeMap();
+    if (this.terraRt == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Please initialise a terra class by using `initTerra` first");
+      promise.resolve(map);
+      return;
+    }
+    this.terraRt.startForegroundService(title, text, null);
+    map.putBoolean("success", true);
+    promise.resolve(map);
+  }
+
+  /** Stops the streaming foreground service (managed automatically by the SDK). */
+  @ReactMethod
+  public void stopForegroundService(Promise promise){
+    WritableMap map = new WritableNativeMap();
+    if (this.terraRt == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Please initialise a terra class by using `initTerra` first");
+      promise.resolve(map);
+      return;
+    }
+    this.terraRt.stopForegroundService();
+    map.putBoolean("success", true);
+    promise.resolve(map);
+  }
+
+  /** Whether the app is exempt from battery optimizations (aggressive OEMs kill streams otherwise). */
+  @ReactMethod
+  public void isIgnoringBatteryOptimizations(Promise promise){
+    PowerManager pm = (PowerManager) this.reactContext.getSystemService(Context.POWER_SERVICE);
+    promise.resolve(pm != null && pm.isIgnoringBatteryOptimizations(this.reactContext.getPackageName()));
+  }
+
+  /** Opens the system dialog requesting a battery-optimization exemption. */
+  @ReactMethod
+  public void requestIgnoreBatteryOptimizations(Promise promise){
+    try {
+      Intent intent = new Intent(
+          Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+          Uri.parse("package:" + this.reactContext.getPackageName()));
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      this.reactContext.startActivity(intent);
+      promise.resolve(true);
+    } catch (Exception e) {
+      promise.resolve(false);
+    }
   }
 }
 
