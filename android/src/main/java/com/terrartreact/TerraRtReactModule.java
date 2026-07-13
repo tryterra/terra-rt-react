@@ -406,6 +406,10 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
   /** Whether the app is exempt from battery optimizations (aggressive OEMs kill streams otherwise). */
   @ReactMethod
   public void isIgnoringBatteryOptimizations(Promise promise){
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+      promise.resolve(true); // no battery optimizations before API 23
+      return;
+    }
     PowerManager pm = (PowerManager) this.reactContext.getSystemService(Context.POWER_SERVICE);
     promise.resolve(pm != null && pm.isIgnoringBatteryOptimizations(this.reactContext.getPackageName()));
   }
@@ -413,6 +417,10 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
   /** Opens the system dialog requesting a battery-optimization exemption. */
   @ReactMethod
   public void requestIgnoreBatteryOptimizations(Promise promise){
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+      promise.resolve(true); // no battery optimizations before API 23
+      return;
+    }
     try {
       Intent intent = new Intent(
           Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
