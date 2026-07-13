@@ -99,7 +99,10 @@ export function startForegroundService(
   if (Platform.OS !== 'android') {
     return Promise.resolve({ success: true, error: null });
   }
-  return TerraRtReact.startForegroundService(notificationTitle, notificationText);
+  return TerraRtReact.startForegroundService(
+    notificationTitle,
+    notificationText
+  );
 }
 
 /** ANDROID ONLY. Stops the streaming foreground service. No-op on iOS. */
