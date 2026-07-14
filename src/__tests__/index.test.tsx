@@ -7,15 +7,20 @@ NativeModules.TerraRtReact = {
   stopForegroundService: jest.fn(async () => ({ success: true, error: null })),
   isIgnoringBatteryOptimizations: jest.fn(async () => false),
   requestIgnoreBatteryOptimizations: jest.fn(async () => true),
+  stopDeviceScan: jest.fn(async () => ({ success: true, error: null })),
+  stopRealtime: jest.fn(async () => ({ success: true, error: null })),
 };
 
 // require, not import: imports hoist above the NativeModules assignment,
 // which would capture the linking-error proxy instead of the mock.
 const {
   isIgnoringBatteryOptimizations,
+  isTerraRtAvailable,
   requestIgnoreBatteryOptimizations,
   startForegroundService,
+  stopDeviceScan,
   stopForegroundService,
+  stopRealtime,
 } = require('../index');
 
 const native = NativeModules.TerraRtReact;
@@ -45,6 +50,31 @@ describe('background-streaming API (android)', () => {
     await expect(requestIgnoreBatteryOptimizations()).resolves.toBe(true);
     expect(native.isIgnoringBatteryOptimizations).toHaveBeenCalled();
     expect(native.requestIgnoreBatteryOptimizations).toHaveBeenCalled();
+  });
+});
+
+describe('scan control + platform mapping', () => {
+  beforeEach(() => {
+    Platform.OS = 'android';
+    jest.clearAllMocks();
+  });
+
+  it('isTerraRtAvailable reflects native module presence', () => {
+    expect(isTerraRtAvailable()).toBe(true);
+  });
+
+  it('stopDeviceScan calls through with the connection', async () => {
+    await stopDeviceScan('BLE');
+    expect(native.stopDeviceScan).toHaveBeenCalledWith('BLE');
+  });
+
+  it("maps 'PHONE' to the platform's native connection name", async () => {
+    await stopRealtime('PHONE');
+    expect(native.stopRealtime).toHaveBeenCalledWith('ANDROID');
+
+    Platform.OS = 'ios';
+    await stopRealtime('PHONE');
+    expect(native.stopRealtime).toHaveBeenCalledWith('APPLE');
   });
 });
 
