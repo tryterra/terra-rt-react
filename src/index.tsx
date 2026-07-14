@@ -29,15 +29,6 @@ const TerraRtReact = NativeModules.TerraRtReact
     );
 
 /**
- * Whether the native module is present. False in Expo Go or any build
- * without the native side — check this to degrade gracefully instead of
- * catching the linking error.
- */
-export function isTerraRtAvailable(): boolean {
-  return NativeModules.TerraRtReact != null;
-}
-
-/**
  * 'PHONE' means the phone's own sensors; the native SDKs name it per
  * platform (APPLE / ANDROID). All connection-taking functions accept it.
  */

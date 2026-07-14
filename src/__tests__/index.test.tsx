@@ -24,7 +24,6 @@ NativeModules.TerraRtReact = {
 // which would capture the linking-error proxy instead of the mock.
 const {
   isIgnoringBatteryOptimizations,
-  isTerraRtAvailable,
   onUpdate,
   requestIgnoreBatteryOptimizations,
   startDeviceScanWithCallback,
@@ -40,10 +39,6 @@ describe('scan control + platform mapping', () => {
   beforeEach(() => {
     Platform.OS = 'android';
     jest.clearAllMocks();
-  });
-
-  it('isTerraRtAvailable reflects native module presence', () => {
-    expect(isTerraRtAvailable()).toBe(true);
   });
 
   it('stopDeviceScan calls through with the connection', async () => {
