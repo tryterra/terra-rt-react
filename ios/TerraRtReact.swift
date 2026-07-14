@@ -165,7 +165,12 @@ class TerraRtReact: NSObject {
         }
         
         if let device_ = TerraRtReact.scannedDevices[device]{
+            // The SDK reuses this callback for later connection updates
+            // (e.g. disconnect) — a promise must resolve exactly once.
+            var resolved = false
             terraRT.connectDevice(device_){success in
+                guard !resolved else { return }
+                resolved = true
                 resolve(["success": success])
             }
         }
