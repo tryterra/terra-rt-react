@@ -180,8 +180,6 @@ export function disconnect(
 }
 
 /* ------------------------- Typed event streams ------------------------- */
-// iOS emits from dedicated native handler modules; Android emits on the
-// global RCTDeviceEventEmitter (no module argument). Same event names.
 
 function emitterFor(iosModule: any): NativeEventEmitter {
   return new NativeEventEmitter(Platform.OS === 'ios' ? iosModule : undefined);

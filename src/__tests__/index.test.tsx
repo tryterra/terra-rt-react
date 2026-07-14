@@ -1,4 +1,9 @@
-import { NativeModules, Platform } from 'react-native';
+import {
+  DeviceEventEmitter,
+  NativeModules,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 
 // Must exist before src/index is imported, or the linking-error proxy trips.
 NativeModules.TerraRtReact = {
@@ -9,6 +14,10 @@ NativeModules.TerraRtReact = {
   requestIgnoreBatteryOptimizations: jest.fn(async () => true),
   stopDeviceScan: jest.fn(async () => ({ success: true, error: null })),
   stopRealtime: jest.fn(async () => ({ success: true, error: null })),
+  startDeviceScanWithCallback: jest.fn(async () => ({
+    success: true,
+    error: null,
+  })),
 };
 
 // require, not import: imports hoist above the NativeModules assignment,
@@ -16,7 +25,9 @@ NativeModules.TerraRtReact = {
 const {
   isIgnoringBatteryOptimizations,
   isTerraRtAvailable,
+  onUpdate,
   requestIgnoreBatteryOptimizations,
+  startDeviceScanWithCallback,
   startForegroundService,
   stopDeviceScan,
   stopForegroundService,
@@ -75,6 +86,55 @@ describe('background-streaming API (android)', () => {
     await expect(requestIgnoreBatteryOptimizations()).resolves.toBe(true);
     expect(native.isIgnoringBatteryOptimizations).toHaveBeenCalled();
     expect(native.requestIgnoreBatteryOptimizations).toHaveBeenCalled();
+  });
+});
+
+describe('android scan-permission gate', () => {
+  beforeEach(() => {
+    Platform.OS = 'android';
+    jest.clearAllMocks();
+  });
+
+  it('rejects loudly when permissions are denied', async () => {
+    jest.spyOn(PermissionsAndroid, 'requestMultiple').mockResolvedValueOnce({
+      'android.permission.BLUETOOTH_SCAN': 'denied',
+    } as any);
+    await expect(startDeviceScanWithCallback('BLE')).rejects.toThrow(
+      /permissions not granted/i
+    );
+    expect(native.startDeviceScanWithCallback).not.toHaveBeenCalled();
+  });
+
+  it('scans once permissions are granted, with the mapped connection', async () => {
+    jest.spyOn(PermissionsAndroid, 'requestMultiple').mockResolvedValueOnce({
+      'android.permission.BLUETOOTH_SCAN': 'granted',
+      'android.permission.BLUETOOTH_CONNECT': 'granted',
+    } as any);
+    await startDeviceScanWithCallback('PHONE');
+    expect(native.startDeviceScanWithCallback).toHaveBeenCalledWith('ANDROID');
+  });
+});
+
+describe('typed event streams', () => {
+  beforeEach(() => {
+    Platform.OS = 'android';
+  });
+
+  it('onUpdate delivers normalized payloads and unsubscribes cleanly', () => {
+    const updates: any[] = [];
+    const unsubscribe = onUpdate((u: any) => updates.push(u));
+
+    DeviceEventEmitter.emit('Update', { type: 'HEART_RATE', val: 62 });
+    DeviceEventEmitter.emit('Update', { type: 'ACCELERATION', d: [0, 0, 1] });
+
+    expect(updates).toEqual([
+      { type: 'HEART_RATE', ts: null, val: 62, d: null },
+      { type: 'ACCELERATION', ts: null, val: null, d: [0, 0, 1] },
+    ]);
+
+    unsubscribe();
+    DeviceEventEmitter.emit('Update', { type: 'HEART_RATE', val: 70 });
+    expect(updates).toHaveLength(2);
   });
 });
 
