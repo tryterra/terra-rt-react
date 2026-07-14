@@ -1,6 +1,6 @@
 {
   "name": "terra-rt",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "React Native SDK for Terra's realtime (websocket) streaming \u2014 live data from BLE devices and Apple Watch.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
