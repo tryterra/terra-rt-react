@@ -36,6 +36,10 @@ RCT_EXTERN_METHOD(startBluetoothScan:(NSString *)connections
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(stopDeviceScan:(NSString *)connections
+                  withResolver:(RCTPromiseResolveBlock)resolve
+                  withRejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(connectDevice:(NSString *)device
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)

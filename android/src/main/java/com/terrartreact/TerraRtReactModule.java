@@ -338,6 +338,28 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
     this.terraRt.startDeviceScan(Objects.requireNonNull(this.parseConnection(connections)), this::_deviceHandler_);
   }
 
+  /** Stops a device scan started by startDeviceScanWithCallback. */
+  @ReactMethod
+  public void stopDeviceScan(String connections, Promise promise){
+    WritableMap map = new WritableNativeMap();
+    if (this.terraRt == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Please initialise a terra class by using `initTerra` first");
+      promise.resolve(map);
+      return;
+    }
+    Connections connection = this.parseConnection(connections);
+    if (connection == null){
+      map.putBoolean("success", false);
+      map.putString("error", "Invalid Connection");
+      promise.resolve(map);
+      return;
+    }
+    this.terraRt.stopDeviceScan(connection);
+    map.putBoolean("success", true);
+    promise.resolve(map);
+  }
+
   @ReactMethod
   public void connectDevice(String deviceId, Promise promise){
     WritableMap map = new WritableNativeMap();

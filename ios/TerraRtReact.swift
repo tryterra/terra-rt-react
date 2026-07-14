@@ -141,6 +141,21 @@ class TerraRtReact: NSObject {
         resolve(["success": true])
     }
 
+    @objc(stopDeviceScan:withResolver:withRejecter:)
+    func stopDeviceScan(connections: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        guard let terraRT = TerraRtReact.terraRt else{
+            resolve(["success": false, "error": "Please initialise a terra class by using `initTerra` first"])
+            return
+        }
+
+        guard let connection = TerraRtReact.parseConnections(connections) else{
+            resolve(["success": false, "error": "Invalid Connection"])
+            return
+        }
+        terraRT.stopBluetoothScan(type: connection)
+        resolve(["success": true])
+    }
+
     @objc(startBluetoothScan:withResolver:withRejecter:)
     func startBluetoothScan(connections: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
         guard let terraRT = TerraRtReact.terraRt else{
