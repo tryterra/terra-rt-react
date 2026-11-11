@@ -93,8 +93,20 @@ public class TerraRtReactModule extends ReactContextBaseJavaModule {
           return DataTypes.MET;
         case "RR_INTERVAL":
           return DataTypes.RR_INTERVAL;
+        case "JUMP_COUNT":
+          // Resolved by name so this compiles against native SDKs that predate
+          // JUMP_COUNT; it is simply skipped there.
+          return dataTypeByName("JUMP_COUNT");
         default:
           return null;
+    }
+  }
+
+  private DataTypes dataTypeByName(String name){
+    try {
+      return DataTypes.valueOf(name);
+    } catch (IllegalArgumentException e) {
+      return null;
     }
   }
 
