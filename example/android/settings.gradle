@@ -18,5 +18,5 @@ dependencyResolutionManagement {
 rootProject.name = "TerraRtReactExample"
 include(":app")
 
-include(":react-native-terra-rt-react")
-project(":react-native-terra-rt-react").projectDir = new File(rootProject.projectDir, "../../android")
+include(":terra-rt")
+project(":terra-rt").projectDir = new File(rootProject.projectDir, "../../android")
