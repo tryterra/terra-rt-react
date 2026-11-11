@@ -13,6 +13,7 @@ NativeModules.TerraRtReact = {
   isIgnoringBatteryOptimizations: jest.fn(async () => false),
   requestIgnoreBatteryOptimizations: jest.fn(async () => true),
   stopDeviceScan: jest.fn(async () => ({ success: true, error: null })),
+  startRealtime: jest.fn(async () => ({ success: true, error: null })),
   stopRealtime: jest.fn(async () => ({ success: true, error: null })),
   startDeviceScanWithCallback: jest.fn(async () => ({
     success: true,
@@ -23,11 +24,13 @@ NativeModules.TerraRtReact = {
 // require, not import: imports hoist above the NativeModules assignment,
 // which would capture the linking-error proxy instead of the mock.
 const {
+  DataTypes,
   isIgnoringBatteryOptimizations,
   onUpdate,
   requestIgnoreBatteryOptimizations,
   startDeviceScanWithCallback,
   startForegroundService,
+  startRealtime,
   stopDeviceScan,
   stopForegroundService,
   stopRealtime,
@@ -53,6 +56,24 @@ describe('scan control + platform mapping', () => {
     Platform.OS = 'ios';
     await stopRealtime('PHONE');
     expect(native.stopRealtime).toHaveBeenCalledWith('APPLE');
+  });
+});
+
+describe('data types', () => {
+  beforeEach(() => {
+    Platform.OS = 'android';
+    jest.clearAllMocks();
+  });
+
+  it('passes JUMP_COUNT to the native module by its wire name', async () => {
+    expect(DataTypes.JUMP_COUNT).toBe('JUMP_COUNT');
+
+    await startRealtime('BLE', [DataTypes.HEART_RATE, DataTypes.JUMP_COUNT]);
+    expect(native.startRealtime).toHaveBeenCalledWith(
+      'BLE',
+      ['HEART_RATE', 'JUMP_COUNT'],
+      null
+    );
   });
 });
 

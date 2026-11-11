@@ -46,6 +46,10 @@ class TerraRtReact: NSObject {
             return .GYROSCOPE
         case "ACCELERATION":
             return .ACCELERATION
+        case "JUMP_COUNT":
+            // Resolved by raw value so this compiles against native SDKs that
+            // predate JUMP_COUNT; it is simply skipped there.
+            return DataTypes(rawValue: "JUMP_COUNT")
         default:
             return nil
         }

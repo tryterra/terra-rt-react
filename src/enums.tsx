@@ -26,4 +26,5 @@ export enum DataTypes {
   BIKE_CADENCE = 'BIKE_CADENCE',
   MET = 'MET',
   RR_INTERVAL = 'RR_INTERVAL',
+  JUMP_COUNT = 'JUMP_COUNT',
 }
